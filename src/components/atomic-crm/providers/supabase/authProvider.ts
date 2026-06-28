@@ -57,7 +57,11 @@ const getSale = async () => {
   const storage = getLocalStorage();
   const cachedValue = storage?.getItem(CURRENT_SALE_CACHE_KEY);
   if (cachedValue != null) {
-    return JSON.parse(cachedValue);
+    const cached = JSON.parse(cachedValue);
+    if (cached.role != null) {
+      return cached;
+    }
+    storage?.removeItem(CURRENT_SALE_CACHE_KEY);
   }
 
   const { data: dataSession, error: errorSession } =
