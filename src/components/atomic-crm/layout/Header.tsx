@@ -1,5 +1,5 @@
 import { FileText, Import, Settings, User, Users } from "lucide-react";
-import { CanAccess, useTranslate, useUserMenu } from "ra-core";
+import { CanAccess, useGetIdentity, useTranslate, useUserMenu } from "ra-core";
 import { Link, matchPath, useLocation } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
 import { ThemeModeToggle } from "@/components/admin/theme-mode-toggle";
@@ -14,6 +14,11 @@ const Header = () => {
   const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
   const location = useLocation();
   const translate = useTranslate();
+  const { identity } = useGetIdentity();
+  const role = (identity as { role?: string } | undefined)?.role;
+  const isAdmin = role === "admin";
+  const canSeeLuke = isAdmin || role === "lead_researcher";
+  const canSeeLukeReview = isAdmin || role === "sales_manager";
 
   let currentPath: string | boolean = "/";
   if (matchPath("/", location.pathname)) {
@@ -24,6 +29,12 @@ const Header = () => {
     currentPath = "/companies";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath("/dashboard/luke-review", location.pathname)) {
+    currentPath = "/dashboard/luke-review";
+  } else if (matchPath("/dashboard/luke", location.pathname)) {
+    currentPath = "/dashboard/luke";
+  } else if (matchPath("/dashboard/ai-command-center", location.pathname)) {
+    currentPath = "/dashboard/ai-command-center";
   } else {
     currentPath = false;
   }
@@ -78,6 +89,33 @@ const Header = () => {
                     to="/deals"
                     isActive={currentPath === "/deals"}
                   />
+                  {canSeeLuke && (
+                    <NavigationTab
+                      label={translate("crm.nav.luke", {
+                        _: "Luke Command Center",
+                      })}
+                      to="/dashboard/luke"
+                      isActive={currentPath === "/dashboard/luke"}
+                    />
+                  )}
+                  {canSeeLukeReview && (
+                    <NavigationTab
+                      label={translate("crm.nav.luke_review", {
+                        _: "Luke Review",
+                      })}
+                      to="/dashboard/luke-review"
+                      isActive={currentPath === "/dashboard/luke-review"}
+                    />
+                  )}
+                  {isAdmin && (
+                    <NavigationTab
+                      label={translate("crm.nav.ai_command_center", {
+                        _: "AI Command Center",
+                      })}
+                      to="/dashboard/ai-command-center"
+                      isActive={currentPath === "/dashboard/ai-command-center"}
+                    />
+                  )}
                 </nav>
               </div>
               <div className="flex items-center">
