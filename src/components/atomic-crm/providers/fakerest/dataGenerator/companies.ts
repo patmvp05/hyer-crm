@@ -1,0 +1,63 @@
+import {
+  address,
+  company,
+  datatype,
+  internet,
+  lorem,
+  phone,
+  random,
+} from "faker/locale/en_US";
+
+import { randomDate } from "./utils";
+import { defaultCompanySectors } from "../../../root/defaultConfiguration";
+import type { Company, RAFile } from "../../../types";
+import type { Db } from "./types";
+
+const sizes = [1, 10, 50, 250, 500];
+
+const regex = /\W+/;
+
+export const generateCompanies = (db: Db, size = 55): Required<Company>[] => {
+  return Array.from(Array(size).keys()).map((id) => {
+    const name = company.companyName();
+    return {
+      id,
+      name: name,
+      logo: {
+        title: lorem.text(1),
+        src: `https://marmelab.com/react-admin-crm/logos/${id}.png`,
+      } as RAFile,
+      sector: random.arrayElement(defaultCompanySectors).value,
+      size: random.arrayElement(sizes) as 1 | 10 | 50 | 250 | 500,
+      linkedin_url: `https://www.linkedin.com/company/${name
+        .toLowerCase()
+        .replace(regex, "_")}`,
+      website: internet.url(),
+      phone_number: phone.phoneNumber(),
+      address: address.streetAddress(),
+      zipcode: address.zipCode(),
+      city: address.city(),
+      state_abbr: address.stateAbbr(),
+      nb_contacts: 0,
+      nb_deals: 0,
+      // at least 1/3rd of companies for Jane Doe
+      sales_id: datatype.number(2) === 0 ? 0 : random.arrayElement(db.sales).id,
+      created_at: randomDate().toISOString(),
+      description: lorem.paragraph(),
+      revenue: random.arrayElement(["$1M", "$10M", "$100M", "$1B"]),
+      tax_identifier: random.alphaNumeric(10),
+      country: random.arrayElement(["USA", "France", "UK"]),
+      context_links: [],
+      assigned_to_user_id: null,
+      created_by_user_id: null,
+      last_updated_by_user_id: null,
+      research_status: "new",
+      icp_score: null,
+      trigger_reason: null,
+      ready_for_review: false,
+      approved_for_instantly: false,
+      reviewed_by_user_id: null,
+      review_notes: null,
+    };
+  });
+};
